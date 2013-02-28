@@ -51,6 +51,9 @@
 // Tab background image
 @property (nonatomic, strong) NSString *backgroundImageName;
 
+// Used to enable / disable tabBar auto height
+@property (nonatomic, assign) BOOL autoHeight;
+
 - (void)tabSelected:(AKTab *)sender;
 
 @end

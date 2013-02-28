@@ -29,8 +29,14 @@
 // View Controllers handled by the tab bar controller.
 @property (nonatomic, strong) NSMutableArray *viewControllers;
 
+// Index of selected tab
+@property (nonatomic, assign) NSInteger selectedIndex;
+
 // This is the minimum height to display the title.
 @property (nonatomic, assign) CGFloat minimumHeightToDisplayTitle;
+
+// Used to enable / disable tabBar auto height
+@property (nonatomic, assign) BOOL tabBarAutoHeightEnabled;
 
 // Used to show / hide the tabs title.
 @property (nonatomic, assign) BOOL tabTitleIsHidden;
@@ -85,5 +91,14 @@
 
 // Initialization with a specific height.
 - (id)initWithTabBarHeight:(NSUInteger)height;
+
+// Select tab for index
+- (void)setSelectedIndex:(NSInteger)selectedIndex;
+
+// Show tabBar (vertically)
+- (void)showTabBarAnimated:(BOOL)animated;
+
+// Hide tabBar (vertically)
+- (void)hideTabBarAnimated:(BOOL)animated;
 
 @end

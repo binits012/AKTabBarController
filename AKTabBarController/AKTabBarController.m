@@ -37,7 +37,9 @@ static const float kPushAnimationDuration = 0.35;
 
 typedef enum {
     AKShowHideFromLeft,
-    AKShowHideFromRight
+    AKShowHideFromRight,
+    AKShowHideFromTop,
+    AKSHowHideFromBottom
 } AKShowHideFrom;
 
 // Current active view controller
@@ -64,7 +66,7 @@ typedef enum {
 #pragma mark - Initialization
 
 - (id)init
-{    
+{
     return [self initWithTabBarHeight:kDefaultTabBarHeight];
 }
 
@@ -74,6 +76,7 @@ typedef enum {
     if (!self) return nil;
     
     tabBarHeight = height;
+    _selectedIndex = 0;
     
     // default settings
     _iconShadowOffset = CGSizeMake(0, -1);
@@ -93,6 +96,7 @@ typedef enum {
     CGRect tabBarRect = CGRectMake(0.0, CGRectGetHeight(self.view.bounds) - tabBarHeight, CGRectGetWidth(self.view.frame), tabBarHeight);
     tabBar = [[AKTabBar alloc] initWithFrame:tabBarRect];
     tabBar.delegate = self;
+    tabBar.autoHeight = self.tabBarAutoHeightEnabled;
     
     tabBarView.tabBar = tabBar;
     tabBarView.contentView = _selectedViewController.view;
@@ -223,15 +227,34 @@ typedef enum {
     }
     
     tabBar.hidden = NO;
-    tabBar.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
-    // when the tabbarview is resized we can see the view behind
     
-    [UIView animateWithDuration:((animated) ? kPushAnimationDuration : 0) animations:^{
-        tabBar.transform = CGAffineTransformIdentity;
-    } completion:^(BOOL finished) {
-        tabBarView.isTabBarHidding = NO;
-        [tabBarView setNeedsLayout];
-    }];
+    if (showHideFrom == AKShowHideFromTop || showHideFrom == AKSHowHideFromBottom) {
+        tabBar.hidden = NO;
+        
+        [UIView animateWithDuration:(animated ? kPushAnimationDuration : 0) animations:^{
+            CGRect tmpTabBarView = tabBarView.contentView.frame;
+            tmpTabBarView.size.height = tabBarView.bounds.size.height;
+            tabBarView.contentView.frame = tmpTabBarView;
+            
+            CGRect frame = tabBar.frame;
+            frame.origin.y -= frame.size.height;
+            tabBar.frame = frame;
+        } completion:^(BOOL finished) {
+            tabBarView.isTabBarHidding = NO;
+            [tabBarView setNeedsLayout];
+        }];
+    }
+    else {
+        tabBar.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
+        // when the tabbarview is resized we can see the view behind
+        
+        [UIView animateWithDuration:((animated) ? kPushAnimationDuration : 0) animations:^{
+            tabBar.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {
+            tabBarView.isTabBarHidding = NO;
+            [tabBarView setNeedsLayout];
+        }];
+    }
 }
 
 - (void)hideTabBar:(AKShowHideFrom)showHideFrom animated:(BOOL)animated
@@ -251,16 +274,31 @@ typedef enum {
     
     tabBarView.isTabBarHidding = YES;
     
-    CGRect tmpTabBarView = tabBarView.contentView.frame;
-    tmpTabBarView.size.height = tabBarView.bounds.size.height;
-    tabBarView.contentView.frame = tmpTabBarView;
-    
-    [UIView animateWithDuration:((animated) ? kPushAnimationDuration : 0) animations:^{
-        tabBar.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
-    } completion:^(BOOL finished) {
-        tabBar.hidden = YES;
-        tabBar.transform = CGAffineTransformIdentity;
-    }];
+    if (showHideFrom == AKShowHideFromTop || showHideFrom == AKSHowHideFromBottom) {
+        [UIView animateWithDuration:(animated ? kPushAnimationDuration : 0) animations:^{
+            CGRect tmpTabBarView = tabBarView.contentView.frame;
+            tmpTabBarView.size.height = tabBarView.bounds.size.height;
+            tabBarView.contentView.frame = tmpTabBarView;
+            
+            CGRect frame = tabBar.frame;
+            frame.origin.y += frame.size.height;
+            tabBar.frame = frame;
+        } completion:^(BOOL finished) {
+            tabBar.hidden = YES;
+        }];
+    }
+    else {
+        [UIView animateWithDuration:((animated) ? kPushAnimationDuration : 0) animations:^{
+            CGRect tmpTabBarView = tabBarView.contentView.frame;
+            tmpTabBarView.size.height = tabBarView.bounds.size.height;
+            tabBarView.contentView.frame = tmpTabBarView;
+            
+            tabBar.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
+        } completion:^(BOOL finished) {
+            tabBar.hidden = YES;
+            tabBar.transform = CGAffineTransformIdentity;
+        }];
+    }
 }
 
 #pragma mark - Setters
@@ -273,31 +311,55 @@ typedef enum {
     [self setSelectedViewController:[viewControllers objectAtIndex:0]];
 }
 
+- (void)setSelectedIndex:(NSInteger)selectedIndex
+{
+    if (selectedIndex < [self.viewControllers count] && selectedIndex < [tabBar.tabs count]) {
+        _selectedIndex = selectedIndex;
+        
+        [tabBar setSelectedTab:[tabBar.tabs objectAtIndex:_selectedIndex]];
+        
+        [self setSelectedViewController:[self.viewControllers objectAtIndex:_selectedIndex]];
+    }
+}
+
 - (void)setSelectedViewController:(UIViewController *)selectedViewController
 {
-    UIViewController *previousSelectedViewController = selectedViewController;
+    //UIViewController *previousSelectedViewController = selectedViewController;
     if (_selectedViewController != selectedViewController)
     {
         
         _selectedViewController = selectedViewController;
         selectedViewController = selectedViewController;
         
-        if ((self.childViewControllers == nil || !self.childViewControllers.count) && visible)
-        {
-			[previousSelectedViewController viewWillDisappear:NO];
-			[selectedViewController viewWillAppear:NO];
-		}
+        /* don't see the need for explicit call
+        if ((self.childViewControllers == nil || !self.childViewControllers.count) && visible) {
+            [previousSelectedViewController viewWillDisappear:NO];
+            [selectedViewController viewWillAppear:NO];
+        }*/
         
         [tabBarView setContentView:selectedViewController.view];
         
-        if ((self.childViewControllers == nil || !self.childViewControllers.count) && visible)
-        {
-			[previousSelectedViewController viewDidDisappear:NO];
-			[selectedViewController viewDidAppear:NO];
-		}
+        /* don't see the need for explicit call
+        if ((self.childViewControllers == nil || !self.childViewControllers.count) && visible) {
+            [previousSelectedViewController viewDidDisappear:NO];
+            [selectedViewController viewDidAppear:NO];
+        }*/
         
-        [tabBar setSelectedTab:[tabBar.tabs objectAtIndex:[self.viewControllers indexOfObject:selectedViewController]]];
+        _selectedIndex = [self.viewControllers indexOfObject:selectedViewController];
+        [tabBar setSelectedTab:[tabBar.tabs objectAtIndex:_selectedIndex]];
     }
+}
+
+
+#pragma mark - Custom tabBar methods
+- (void)showTabBarAnimated:(BOOL)animated
+{
+    [self showTabBar:AKSHowHideFromBottom animated:animated];
+}
+
+- (void)hideTabBarAnimated:(BOOL)animated
+{
+    [self hideTabBar:AKShowHideFromTop animated:animated];
 }
 
 
@@ -324,6 +386,12 @@ typedef enum {
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
     return [self.selectedViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+}
+
+// iOS 6+ support
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return [self.selectedViewController supportedInterfaceOrientations];
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
