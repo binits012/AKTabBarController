@@ -109,7 +109,7 @@ static const float kTopMargin = 2.0;
     {
         // Tab's image
         image = [UIImage imageNamed:_tabImageWithName];
-        
+                
         // Getting the ratio for eventual scaling
         ratio = image.size.width / image.size.height;
         
@@ -150,14 +150,14 @@ static const float kTopMargin = 2.0;
         CGRect imageContainer = content;
         imageContainer.size.height = CGRectGetHeight(content) - ((displayTabTitle) ? (kMargin + CGRectGetHeight(labelRect)) : 0);
         
-        // When the image is not square we have to make sure it will not go beyond the bonds of the container
-        if (CGRectGetWidth(imageRect) >= CGRectGetHeight(imageRect)) {
-            imageRect.size.width = MIN(CGRectGetHeight(imageRect), MIN(CGRectGetWidth(imageContainer), CGRectGetHeight(imageContainer)));
-            imageRect.size.height = floorf(CGRectGetWidth(imageRect) / ratio);
-        } else {
-            imageRect.size.height = MIN(CGRectGetHeight(imageRect), MIN(CGRectGetWidth(imageContainer), CGRectGetHeight(imageContainer)));
-            imageRect.size.width = floorf(CGRectGetHeight(imageRect) * ratio);
-        }
+//        // When the image is not square we have to make sure it will not go beyond the bonds of the container
+//        if (CGRectGetWidth(imageRect) >= CGRectGetHeight(imageRect)) {
+//            imageRect.size.width = MIN(CGRectGetHeight(imageRect), MIN(CGRectGetWidth(imageContainer), CGRectGetHeight(imageContainer)));
+//            imageRect.size.height = floorf(CGRectGetWidth(imageRect) / ratio);
+//        } else {
+//            imageRect.size.height = MIN(CGRectGetHeight(imageRect), MIN(CGRectGetWidth(imageContainer), CGRectGetHeight(imageContainer)));
+//            imageRect.size.width = floorf(CGRectGetHeight(imageRect) * ratio);
+//        }
         
         imageRect.origin.x = floorf(CGRectGetMidX(content) - CGRectGetWidth(imageRect) / 2);
         imageRect.origin.y = floorf(CGRectGetMidY(imageContainer) - CGRectGetHeight(imageRect) / 2);
@@ -202,10 +202,12 @@ static const float kTopMargin = 2.0;
                 CGFloat components[8] = {0.353, 0.353, 0.353, 1.0, // Start color
                     0.612, 0.612, 0.612, 1.0};  // End color
                 
+                CGContextDrawImage(ctx, imageRect, image.CGImage);
+                
                 CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
                 CGGradientRef gradient = _tabIconColors ? CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)_tabIconColors, locations) : CGGradientCreateWithColorComponents (colorSpace, components, locations, num_locations);
                 
-                CGContextDrawLinearGradient(ctx, gradient, CGPointMake(0, imageRect.origin.y + imageRect.size.height), CGPointMake(0, imageRect.origin.y), kCGGradientDrawsAfterEndLocation);
+                //CGContextDrawLinearGradient(ctx, gradient, CGPointMake(0, imageRect.origin.y + imageRect.size.height), CGPointMake(0, imageRect.origin.y), kCGGradientDrawsAfterEndLocation);
                 
                 CGColorSpaceRelease(colorSpace);
                 CGGradientRelease(gradient);
@@ -243,13 +245,13 @@ static const float kTopMargin = 2.0;
             CGContextDrawLinearGradient(ctx, gradient, CGPointMake(0, kTopMargin), CGPointMake(0, rect.size.height - kTopMargin), kCGGradientDrawsAfterEndLocation);
             
             // top dark emboss
-            CGContextSetBlendMode(ctx, kCGBlendModeNormal);
-            UIColor *topEdgeColor = _topEdgeColor;
-            if (!topEdgeColor) {
-                _edgeColor ? _edgeColor : [UIColor colorWithRed:.1f green:.1f blue:.1f alpha:.8f];
-            }
-            CGContextSetFillColorWithColor(ctx, topEdgeColor.CGColor);
-            CGContextFillRect(ctx, CGRectMake(0, 0, rect.size.width, 1));
+//            CGContextSetBlendMode(ctx, kCGBlendModeNormal);
+//            UIColor *topEdgeColor = _topEdgeColor;
+//            if (!topEdgeColor) {
+//                _edgeColor ? _edgeColor : [UIColor colorWithRed:.1f green:.1f blue:.1f alpha:.8f];
+//            }
+//            CGContextSetFillColorWithColor(ctx, topEdgeColor.CGColor);
+//            CGContextFillRect(ctx, CGRectMake(0, 0, rect.size.width, 1));
             
             CGColorSpaceRelease(colorSpace);
             CGGradientRelease(gradient);
@@ -291,11 +293,14 @@ static const float kTopMargin = 2.0;
                 CGFloat locations[2] = {1.0, 0.2};
                 CGFloat components[8] = {0.082, 0.369, 0.663, 1.0, // Start color
                     0.537, 0.773, 0.988, 1.0};  // End color
+              
+                CGContextDrawImage(ctx, imageRect, image.CGImage);
+
                 
                 CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
                 CGGradientRef gradient = _tabIconColorsSelected ? CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)_tabIconColorsSelected, locations) : CGGradientCreateWithColorComponents (colorSpace, components, locations, num_locations);
                 
-                CGContextDrawLinearGradient(ctx, gradient, CGPointMake(0, imageRect.origin.y + imageRect.size.height), CGPointMake(0, imageRect.origin.y), kCGGradientDrawsAfterEndLocation);
+//                CGContextDrawLinearGradient(ctx, gradient, CGPointMake(0, imageRect.origin.y + imageRect.size.height), CGPointMake(0, imageRect.origin.y), kCGGradientDrawsAfterEndLocation);
                 
                 CGColorSpaceRelease(colorSpace);
                 CGGradientRelease(gradient);

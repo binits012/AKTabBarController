@@ -91,7 +91,7 @@ static int kTopEdgeWidth   = 1;
 - (void)drawRect:(CGRect)rect
 {
     // Drawing the tab bar background
-	CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
     
     // fill ingthe background with a noise pattern
     [[UIColor colorWithPatternImage:[UIImage imageNamed:_backgroundImageName ? _backgroundImageName : @"AKTabBarController.bundle/noise-pattern"]] set];
@@ -120,26 +120,26 @@ static int kTopEdgeWidth   = 1;
     CGContextRestoreGState(ctx);
     
     // Drawing the top dark emboss
-    CGContextSaveGState(ctx);
-    {
-        UIColor *topEdgeColor = _topEdgeColor;
-        if (!topEdgeColor) {
-            _edgeColor ? _edgeColor : [UIColor colorWithRed:.1f green:.1f blue:.1f alpha:.8f];
-        }
-        CGContextSetFillColorWithColor(ctx, topEdgeColor.CGColor);
-        CGContextFillRect(ctx, CGRectMake(0, 0, rect.size.width, kTopEdgeWidth));
-    }
-    CGContextRestoreGState(ctx);
+//    CGContextSaveGState(ctx);
+//    {
+//        UIColor *topEdgeColor = _topEdgeColor;
+//        if (!topEdgeColor) {
+//            _edgeColor ? _edgeColor : [UIColor colorWithRed:.1f green:.1f blue:.1f alpha:.8f];
+//        }
+//        CGContextSetFillColorWithColor(ctx, topEdgeColor.CGColor);
+//        CGContextFillRect(ctx, CGRectMake(0, 0, rect.size.width, kTopEdgeWidth));
+//    }
+//    CGContextRestoreGState(ctx);
     
     // Drawing the top bright emboss
-    CGContextSaveGState(ctx);
-    {
-        CGContextSetBlendMode(ctx, kCGBlendModeOverlay);
-        CGContextSetRGBFillColor(ctx, 0.9, 0.9, 0.9, 0.7);
-        CGContextFillRect(ctx, CGRectMake(0, 1, rect.size.width, 1));
-        
-    }
-    CGContextRestoreGState(ctx);
+//    CGContextSaveGState(ctx);
+//    {
+//        CGContextSetBlendMode(ctx, kCGBlendModeOverlay);
+//        CGContextSetRGBFillColor(ctx, 0.9, 0.9, 0.9, 0.7);
+//        CGContextFillRect(ctx, CGRectMake(0, 1, rect.size.width, 1));
+//        
+//    }
+//    CGContextRestoreGState(ctx);
     
     // Drawing the edge border lines
     CGContextSetFillColorWithColor(ctx, _edgeColor ? [_edgeColor CGColor] : [[UIColor colorWithRed:.1f green:.1f blue:.1f alpha:.8f] CGColor]);
